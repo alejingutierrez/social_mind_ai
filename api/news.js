@@ -199,14 +199,14 @@ export default async function handler(req, res) {
       }
     }
 
-    const tasks = [
-      runProvider('NewsAPI', () => fetchNewsApi(term, language, advanced)),
-      runProvider('GNews', () => fetchGNews(term, language)),
-      runProvider('NewsData', () => fetchNewsData(term, language)),
-      runProvider('WorldNews', () => fetchWorldNews(term, language)),
-      runProvider('Guardian', () => fetchGuardian(term)),
-      runProvider('NYT', () => fetchNYT(term)),
-    ]
+  const tasks = [
+    runProvider('NewsAPI', () => fetchNewsApi(term, language, advanced)),
+    runProvider('GNews', () => fetchGNews(term, language)),
+    runProvider('NewsData', () => fetchNewsData(term, language)),
+    runProvider('WorldNews', () => fetchWorldNews(term, language)),
+    runProvider('Guardian', () => fetchGuardian(term)),
+    runProvider('NYT', () => fetchNYT(term)),
+  ]
 
     const results = await Promise.all(tasks)
     const articles = results.flat()
