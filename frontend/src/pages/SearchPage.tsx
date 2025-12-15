@@ -45,8 +45,13 @@ const SearchPage = () => {
   const [selected, setSelected] = useState<Set<number>>(new Set())
 const [classifying, setClassifying] = useState(false)
 const [results, setResults] = useState<Insight[]>([])
-const [hasSearched, setHasSearched] = useState(false)
-const [progress, setProgress] = useState({ open: false, title: '', current: 0, total: 0, message: '' })
+  const [hasSearched, setHasSearched] = useState(false)
+  const [progress, setProgress] = useState({ open: false, title: '', current: 0, total: 0, message: '' })
+
+  const isUnavailable = (error: unknown) => {
+    const msg = error instanceof Error ? error.message : ''
+    return msg.includes('NEWS_API_UNAVAILABLE') || msg.includes('INSIGHTS_API_UNAVAILABLE') || msg.includes('ANALYSIS_API_UNAVAILABLE')
+  }
 
   const mapApiError = (error: unknown, fallback: string) => {
     const messageText = error instanceof Error ? error.message : ''
@@ -88,7 +93,11 @@ const [progress, setProgress] = useState({ open: false, title: '', current: 0, t
         message.info('No se encontraron noticias para este término')
       }
     } catch (error) {
-      console.error(error)
+      if (!isUnavailable(error)) {
+        console.error(error)
+      } else {
+        console.warn(error)
+      }
       message.error(mapApiError(error, 'No se pudieron obtener las noticias'))
     } finally {
       setLoading(false)
@@ -131,7 +140,11 @@ const [progress, setProgress] = useState({ open: false, title: '', current: 0, t
         navigate('/insights')
       }, 800)
     } catch (error) {
-      console.error(error)
+      if (!isUnavailable(error)) {
+        console.error(error)
+      } else {
+        console.warn(error)
+      }
       message.error(mapApiError(error, 'No se pudieron clasificar las noticias seleccionadas'))
       setProgress({ open: false, title: '', current: 0, total: 0, message: '' })
     } finally {

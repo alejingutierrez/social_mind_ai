@@ -26,6 +26,11 @@ const InsightsPage = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [progress, setProgress] = useState({ open: false, title: '', current: 0, total: 0, message: '' })
 
+  const isUnavailable = (error: unknown) => {
+    const msg = error instanceof Error ? error.message : ''
+    return msg.includes('INSIGHTS_API_UNAVAILABLE') || msg.includes('ANALYSIS_API_UNAVAILABLE') || msg.includes('NEWS_API_UNAVAILABLE')
+  }
+
   const mapApiError = (error: unknown, fallback: string) => {
     const messageText = error instanceof Error ? error.message : ''
     if (messageText.includes('INSIGHTS_API_UNAVAILABLE')) {
@@ -46,7 +51,11 @@ const InsightsPage = () => {
       const data = await getInsights()
       setInsights(data.items)
     } catch (error) {
-      console.error(error)
+      if (!isUnavailable(error)) {
+        console.error(error)
+      } else {
+        console.warn(error)
+      }
       message.error(mapApiError(error, 'Error al cargar insights'))
     } finally {
       setLoading(false)
@@ -78,7 +87,11 @@ const InsightsPage = () => {
       setProgress((prev) => ({ ...prev, current: prev.total, message: 'Completado' }))
       navigate('/analysis')
     } catch (error) {
-      console.error(error)
+      if (!isUnavailable(error)) {
+        console.error(error)
+      } else {
+        console.warn(error)
+      }
       message.error(mapApiError(error, 'Error al generar el análisis'))
     } finally {
       if (interval) window.clearInterval(interval)
