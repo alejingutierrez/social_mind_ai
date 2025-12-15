@@ -195,6 +195,23 @@ Vistas implementadas:
 4. **Histórico** – Combina la lista completa de insights, agrupaciones por término y el historial de
    análisis.
 
+## Vercel (Frontend)
+
+- `vercel.json` usa `@vercel/static-build` sobre `frontend/` y agrega fallback de SPA a
+  `/index.html`. Sólo el frontend se despliega en Vercel; los servicios FastAPI siguen corriendo en
+  host o contenedores (ajusta las URLs públicas antes de producción).
+- Variables en Vercel (Production/Preview/Development): `VITE_NEWS_API`,
+  `VITE_INSIGHTS_API`, `VITE_ANALYSIS_API`, todas las claves de news (`NEWS_API_KEY`,
+  `GNEWS_API_KEY`, `NEWSDATA_API_KEY`, `WORLDNEWS_API_KEY`, `GUARDIAN_API_KEY`, `NYT_API_KEY` y sus
+  URLs/limits), y el bloque de Postgres/Neon (`DATABASE_URL`, `POSTGRES_URL`,
+  `POSTGRES_URL_NON_POOLING`, `POSTGRES_PRISMA_URL`, `PGHOST[_UNPOOLED]`, `PGUSER`, `PGDATABASE`,
+  `PGPASSWORD`, etc.).
+- Ejemplo CLI (rellena tu token/ID de equipo):<br>
+  `vercel env add VITE_NEWS_API production --token $VERCEL_TOKEN --project prj_LDLRuAvjNNeOUHDwAy1wGcCb8KNl --scope team_GEudrG1hM2OstdVOLSsJbj4G`
+  (repite para preview/development y las demás variables).
+- Validación local ejecutada: `cd frontend && npm ci && npm run build` (el build de Vercel debería
+  pasar con las mismas instrucciones).
+
 ## Validating the Model
 
 - `docker compose run --rm client` – Streams a prompt through the container to verify host ↔
