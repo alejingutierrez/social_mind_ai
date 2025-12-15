@@ -169,29 +169,35 @@ export default async function handler(req, res) {
   if (allowCORS(req, res)) return
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
-  const term = (req.query.term || '').trim() || 'ai'
-  const language = (req.query.language || '').trim() || undefined
-  const advanced = (req.query.advanced || '').trim() || undefined
-
-  const runProvider = async (name, fn) => {
-    try {
-      return await fn()
-    } catch (error) {
-      console.warn(`${name} failed`, error?.message || error)
-      return []
-    }
-  }
-
-  const tasks = [
-    runProvider('NewsAPI', () => fetchNewsApi(term, language, advanced)),
-    runProvider('GNews', () => fetchGNews(term, language)),
-    runProvider('NewsData', () => fetchNewsData(term, language)),
-    runProvider('WorldNews', () => fetchWorldNews(term, language)),
-    runProvider('Guardian', () => fetchGuardian(term)),
-    runProvider('NYT', () => fetchNYT(term)),
-  ]
-
   try {
+    const pickParam = (value, fallback = '') => {
+      const raw = Array.isArray(value) ? value[0] : value
+      if (raw === undefined || raw === null) return fallback
+      return String(raw)
+    }
+
+    const term = pickParam(req.query.term).trim() || 'ai'
+    const language = pickParam(req.query.language).trim() || undefined
+    const advanced = pickParam(req.query.advanced).trim() || undefined
+
+    const runProvider = async (name, fn) => {
+      try {
+        return await fn()
+      } catch (error) {
+        console.warn(`${name} failed`, error?.message || error)
+        return []
+      }
+    }
+
+    const tasks = [
+      runProvider('NewsAPI', () => fetchNewsApi(term, language, advanced)),
+      runProvider('GNews', () => fetchGNews(term, language)),
+      runProvider('NewsData', () => fetchNewsData(term, language)),
+      runProvider('WorldNews', () => fetchWorldNews(term, language)),
+      runProvider('Guardian', () => fetchGuardian(term)),
+      runProvider('NYT', () => fetchNYT(term)),
+    ]
+
     const results = await Promise.all(tasks)
     const articles = results.flat()
     const deduped = []
@@ -214,6 +220,6 @@ export default async function handler(req, res) {
     })
   } catch (error) {
     console.error('news handler fatal', error)
-    return res.status(200).json(buildNewsResponse(term))
+    return res.status(200).json(buildNewsResponse('demo'))
   }
 }
