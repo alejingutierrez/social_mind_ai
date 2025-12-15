@@ -19,6 +19,16 @@ const GUARDIAN_API_URL = process.env.GUARDIAN_API_URL || 'https://content.guardi
 const NYT_API_KEY = process.env.NYT_API_KEY
 const NYT_API_URL = process.env.NYT_API_URL || 'https://api.nytimes.com/svc/search/v2/articlesearch.json'
 
+const fetchWithTimeout = async (url, options = {}, timeoutMs = 6000) => {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    return await fetch(url, { ...options, signal: controller.signal })
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 const normalizeUrl = (url) => {
   if (!url) return null
   try {
@@ -48,7 +58,7 @@ const fetchNewsApi = async (term, language, advanced) => {
   url.searchParams.set('pageSize', String(GNEWS_MAX_RESULTS))
   url.searchParams.set('sortBy', 'publishedAt')
   if (language) url.searchParams.set('language', language)
-  const resp = await fetch(url.toString(), { headers: { 'X-Api-Key': NEWS_API_KEY } })
+  const resp = await fetchWithTimeout(url.toString(), { headers: { 'X-Api-Key': NEWS_API_KEY } })
   if (!resp.ok) throw new Error(`NewsAPI ${resp.status}`)
   const data = await resp.json()
   return (data.articles || []).map((item) => mapBase(item, 'NewsAPI'))
@@ -61,7 +71,7 @@ const fetchGNews = async (term, language) => {
   url.searchParams.set('lang', language || 'en')
   url.searchParams.set('max', String(GNEWS_MAX_RESULTS))
   url.searchParams.set('token', GNEWS_API_KEY)
-  const resp = await fetch(url.toString())
+  const resp = await fetchWithTimeout(url.toString())
   if (!resp.ok) throw new Error(`GNews ${resp.status}`)
   const data = await resp.json()
   return (data.articles || []).map((item) => mapBase(item, 'GNews'))
@@ -73,7 +83,7 @@ const fetchNewsData = async (term, language) => {
   url.searchParams.set('apikey', NEWSDATA_API_KEY)
   url.searchParams.set('q', term)
   if (language) url.searchParams.set('language', language)
-  const resp = await fetch(url.toString())
+  const resp = await fetchWithTimeout(url.toString())
   if (!resp.ok) throw new Error(`NewsData.io ${resp.status}`)
   const data = await resp.json()
   return (data.results || []).map((item) =>
@@ -96,7 +106,7 @@ const fetchWorldNews = async (term, language) => {
   url.searchParams.set('api-key', WORLDNEWS_API_KEY)
   url.searchParams.set('text', term)
   if (language) url.searchParams.set('language', language)
-  const resp = await fetch(url.toString())
+  const resp = await fetchWithTimeout(url.toString())
   if (!resp.ok) throw new Error(`WorldNews ${resp.status}`)
   const data = await resp.json()
   return (data.news || []).map((item) =>
@@ -118,7 +128,7 @@ const fetchGuardian = async (term) => {
   url.searchParams.set('api-key', GUARDIAN_API_KEY)
   url.searchParams.set('q', term)
   url.searchParams.set('show-fields', 'trailText,thumbnail')
-  const resp = await fetch(url.toString())
+  const resp = await fetchWithTimeout(url.toString())
   if (!resp.ok) throw new Error(`Guardian ${resp.status}`)
   const data = await resp.json()
   return (data.response?.results || []).map((item) =>
@@ -140,7 +150,7 @@ const fetchNYT = async (term) => {
   const url = new URL(NYT_API_URL)
   url.searchParams.set('q', term)
   url.searchParams.set('api-key', NYT_API_KEY)
-  const resp = await fetch(url.toString())
+  const resp = await fetchWithTimeout(url.toString())
   if (!resp.ok) throw new Error(`NYT ${resp.status}`)
   const data = await resp.json()
   return (data.response?.docs || []).map((item) => {
