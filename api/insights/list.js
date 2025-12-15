@@ -1,6 +1,6 @@
-import { allowCORS, buildInsights } from '../_mockData.js'
+const { allowCORS, buildInsights } = require('../_mockData')
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   if (allowCORS(req, res)) return
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
   const items = buildInsights()

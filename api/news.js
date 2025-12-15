@@ -1,4 +1,4 @@
-import { allowCORS, buildNewsResponse } from './_mockData.js'
+const { allowCORS, buildNewsResponse } = require('./_mockData')
 
 const NEWS_API_KEY = process.env.NEWS_API_KEY
 const NEWS_API_URL = process.env.NEWS_API_URL || 'https://newsapi.org/v2/everything'

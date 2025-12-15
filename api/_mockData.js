@@ -13,13 +13,13 @@ const sampleArticles = [
   },
 ]
 
-export const buildNewsResponse = (term) => ({
+const buildNewsResponse = (term) => ({
   term,
   total_results: sampleArticles.length,
   articles: sampleArticles,
 })
 
-export const buildInsights = () => {
+const buildInsights = () => {
   const now = new Date().toISOString()
   return [
     {
@@ -41,7 +41,7 @@ export const buildInsights = () => {
   ]
 }
 
-export const buildAnalysis = () => {
+const buildAnalysis = () => {
   const now = new Date().toISOString()
   return {
     analysis_id: 1,
@@ -55,9 +55,9 @@ export const buildAnalysis = () => {
   }
 }
 
-export const notFound = (res) => res.status(404).json({ error: 'Not found' })
+const notFound = (res) => res.status(404).json({ error: 'Not found' })
 
-export const allowCORS = (req, res) => {
+const allowCORS = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
@@ -66,4 +66,12 @@ export const allowCORS = (req, res) => {
     return true
   }
   return false
+}
+
+module.exports = {
+  buildNewsResponse,
+  buildInsights,
+  buildAnalysis,
+  notFound,
+  allowCORS,
 }
