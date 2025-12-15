@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_LDLRuAvjNNeOUHDwAy1wGcCb8KNl",
+  "orgId": "team_GEudrG1hM2OstdVOLSsJbj4G",
+  "projectName": "social-mind-ai",
+  "settings": {
+    "createdAt": 1765811936519,
+    "framework": null,
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "22.x"
+  }
+}
