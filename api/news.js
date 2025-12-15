@@ -173,25 +173,27 @@ export default async function handler(req, res) {
   const language = (req.query.language || '').trim() || undefined
   const advanced = (req.query.advanced || '').trim() || undefined
 
+  const runProvider = async (name, fn) => {
+    try {
+      return await fn()
+    } catch (error) {
+      console.warn(`${name} failed`, error?.message || error)
+      return []
+    }
+  }
+
   const tasks = [
-    fetchNewsApi(term, language, advanced),
-    fetchGNews(term, language),
-    fetchNewsData(term, language),
-    fetchWorldNews(term, language),
-    fetchGuardian(term),
-    fetchNYT(term),
+    runProvider('NewsAPI', () => fetchNewsApi(term, language, advanced)),
+    runProvider('GNews', () => fetchGNews(term, language)),
+    runProvider('NewsData', () => fetchNewsData(term, language)),
+    runProvider('WorldNews', () => fetchWorldNews(term, language)),
+    runProvider('Guardian', () => fetchGuardian(term)),
+    runProvider('NYT', () => fetchNYT(term)),
   ]
 
   try {
-    const settled = await Promise.allSettled(tasks)
-    const articles = []
-    for (const result of settled) {
-      if (result.status === 'fulfilled') {
-        articles.push(...result.value)
-      } else {
-        console.warn('Provider failed', result.reason)
-      }
-    }
+    const results = await Promise.all(tasks)
+    const articles = results.flat()
     const deduped = []
     const seen = new Set()
     for (const article of articles) {
