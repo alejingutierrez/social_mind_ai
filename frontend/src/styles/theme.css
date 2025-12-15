@@ -1,0 +1,193 @@
+:root {
+  /* User Requested Palette */
+  --sidebar-bg: rgb(239 226 207);
+  --header-bg: rgb(18 18 18);
+  --canvas-bg: #ffffff;
+  --accent-color: rgb(240 65 48);
+
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+
+  /* Advanced Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-glow: 0 0 15px rgba(240, 65, 48, 0.3);
+
+  /* Ant Design Overrides */
+  --ant-primary-color: var(--accent-color);
+}
+
+body {
+  margin: 0;
+  background-color: var(--canvas-bg);
+  color: var(--text-primary);
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Keyframes */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(240, 65, 48, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(240, 65, 48, 0.6);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Layout Overrides */
+.ant-layout {
+  background: transparent !important;
+}
+
+.ant-layout-sider {
+  background: var(--sidebar-bg) !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.ant-layout-header {
+  background: var(--header-bg) !important;
+  color: #ffffff !important;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+}
+
+.ant-typography {
+  color: var(--text-primary);
+}
+
+/* Menu Overrides */
+.ant-menu {
+  background: transparent !important;
+  color: #57534e !important;
+  /* Stone-600 */
+  border-right: none !important;
+}
+
+.ant-menu-item {
+  margin: 4px 8px !important;
+  width: calc(100% - 16px) !important;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ant-menu-item-selected {
+  background-color: rgba(240, 65, 48, 0.1) !important;
+  color: var(--accent-color) !important;
+  font-weight: 600;
+  border-right: 3px solid var(--accent-color);
+  transform: translateX(4px);
+}
+
+.ant-menu-item:hover {
+  color: var(--accent-color) !important;
+  background-color: rgba(240, 65, 48, 0.05) !important;
+}
+
+/* Card Overrides */
+.ant-card {
+  background: #ffffff !important;
+  border: 1px solid #f3f4f6 !important;
+  box-shadow: var(--shadow-sm);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.ant-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.ant-card-head {
+  border-bottom: 1px solid #f3f4f6 !important;
+  font-weight: 600;
+}
+
+/* Inputs & Buttons */
+.ant-input,
+.ant-input-affix-wrapper {
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: var(--text-primary) !important;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.ant-input:focus,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 3px rgba(240, 65, 48, 0.1) !important;
+}
+
+.ant-btn-primary {
+  background: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 4px 6px rgba(240, 65, 48, 0.2) !important;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ant-btn-primary:hover {
+  background: rgb(220, 45, 28) !important;
+  border-color: rgb(220, 45, 28) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 10px rgba(240, 65, 48, 0.3) !important;
+}
+
+.ant-tag {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

@@ -1,0 +1,76 @@
+services:
+  news_service:
+    build:
+      context: ./news_service
+    environment:
+      - NEWS_API_KEY=${NEWS_API_KEY}
+      - NEWS_API_URL=${NEWS_API_URL:-https://newsapi.org/v2/everything}
+      - NEWS_API_SORT_BY=${NEWS_API_SORT_BY:-publishedAt}
+      - GNEWS_API_KEY=${GNEWS_API_KEY}
+      - GNEWS_API_URL=${GNEWS_API_URL:-https://gnews.io/api/v4/search}
+      - GNEWS_MAX_RESULTS=${GNEWS_MAX_RESULTS:-10}
+      - NEWSDATA_API_KEY=${NEWSDATA_API_KEY}
+      - NEWSDATA_API_URL=${NEWSDATA_API_URL:-https://newsdata.io/api/1/latest}
+      - NEWSDATA_MAX_RESULTS=${NEWSDATA_MAX_RESULTS:-10}
+      - WORLDNEWS_API_KEY=${WORLDNEWS_API_KEY}
+      - WORLDNEWS_API_URL=${WORLDNEWS_API_URL:-https://api.worldnewsapi.com/search-news}
+      - WORLDNEWS_MAX_RESULTS=${WORLDNEWS_MAX_RESULTS:-10}
+      - GUARDIAN_API_KEY=${GUARDIAN_API_KEY}
+      - GUARDIAN_API_URL=${GUARDIAN_API_URL:-https://content.guardianapis.com/search}
+      - GUARDIAN_MAX_RESULTS=${GUARDIAN_MAX_RESULTS:-10}
+      - NEWS_DB_PATH=${NEWS_DB_PATH:-/data/news.db}
+      - NYT_API_KEY=${NYT_API_KEY}
+      - NYT_API_URL=${NYT_API_URL:-https://api.nytimes.com/svc/search/v2/articlesearch.json}
+    ports:
+      - "${NEWS_HOST_PORT:-19081}:8080"
+    volumes:
+      - news_data:/data
+
+  insights_service:
+    build:
+      context: ./insights_service
+    environment:
+      - NEWS_SERVICE_URL=http://news_service:8080
+      - LLM_API_URL=http://host.docker.internal:11434/api/generate
+      - LLM_MODEL=qwen2.5:14b
+      - INSIGHTS_DB_PATH=/data/insights.db
+      - MAX_ARTICLES=10
+    depends_on:
+      - news_service
+    volumes:
+      - insights_data:/data
+    ports:
+      - "${INSIGHTS_HOST_PORT:-19090}:8090"
+
+  analysis_service:
+    build:
+      context: ./analysis_service
+    environment:
+      - INSIGHTS_DB_PATH=/data/insights.db
+      - LLM_API_URL=http://host.docker.internal:11434/api/generate
+      - LLM_MODEL=qwen2.5:14b
+      - ANALYSIS_MAX_LIMIT=20
+    depends_on:
+      - insights_service
+    volumes:
+      - insights_data:/data
+    ports:
+      - "${ANALYSIS_HOST_PORT:-19100}:8100"
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      - VITE_NEWS_API=http://localhost:${NEWS_HOST_PORT:-19081}
+      - VITE_INSIGHTS_API=http://localhost:${INSIGHTS_HOST_PORT:-19090}
+      - VITE_ANALYSIS_API=http://localhost:${ANALYSIS_HOST_PORT:-19100}
+    ports:
+      - "${FRONTEND_HOST_PORT:-19573}:5173"
+    depends_on:
+      - news_service
+      - insights_service
+      - analysis_service
+
+volumes:
+  insights_data:
+  news_data:
