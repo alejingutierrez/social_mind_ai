@@ -1,5 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { allowCORS, buildNewsResponse } from './_mockData'
+import { allowCORS, buildNewsResponse } from './_mockData.js'
 
 const NEWS_API_KEY = process.env.NEWS_API_KEY
 const NEWS_API_URL = process.env.NEWS_API_URL || 'https://newsapi.org/v2/everything'
@@ -20,7 +19,7 @@ const GUARDIAN_API_URL = process.env.GUARDIAN_API_URL || 'https://content.guardi
 const NYT_API_KEY = process.env.NYT_API_KEY
 const NYT_API_URL = process.env.NYT_API_URL || 'https://api.nytimes.com/svc/search/v2/articlesearch.json'
 
-const normalizeUrl = (url?: string | null) => {
+const normalizeUrl = (url) => {
   if (!url) return null
   try {
     const u = new URL(url)
@@ -30,19 +29,19 @@ const normalizeUrl = (url?: string | null) => {
   }
 }
 
-const mapBase = (article: any, fallbackSource: string) => ({
+const mapBase = (article, fallbackSource) => ({
   source: { id: article.source?.id ?? null, name: article.source?.name ?? fallbackSource },
   author: article.author ?? null,
   title: article.title ?? article.headline?.main ?? '',
   description: article.description ?? article.abstract ?? article.trailText ?? null,
-  url: article.url ?? article.webUrl ?? (article.link ?? null),
+  url: article.url ?? article.webUrl ?? article.link ?? null,
   urlToImage: article.urlToImage ?? article.image_url ?? article.fields?.thumbnail ?? null,
   publishedAt: article.publishedAt ?? article.publishedAtUtc ?? article.firstPublished ?? article.pub_date ?? null,
   content: article.content ?? null,
   category: article.category ?? null,
 })
 
-const fetchNewsApi = async (term: string, language?: string, advanced?: string) => {
+const fetchNewsApi = async (term, language, advanced) => {
   if (!NEWS_API_KEY) return []
   const url = new URL(NEWS_API_URL)
   url.searchParams.set('q', advanced || term)
@@ -52,10 +51,10 @@ const fetchNewsApi = async (term: string, language?: string, advanced?: string) 
   const resp = await fetch(url.toString(), { headers: { 'X-Api-Key': NEWS_API_KEY } })
   if (!resp.ok) throw new Error(`NewsAPI ${resp.status}`)
   const data = await resp.json()
-  return (data.articles || []).map((item: any) => mapBase(item, 'NewsAPI'))
+  return (data.articles || []).map((item) => mapBase(item, 'NewsAPI'))
 }
 
-const fetchGNews = async (term: string, language?: string) => {
+const fetchGNews = async (term, language) => {
   if (!GNEWS_API_KEY) return []
   const url = new URL(GNEWS_API_URL)
   url.searchParams.set('q', term)
@@ -65,10 +64,10 @@ const fetchGNews = async (term: string, language?: string) => {
   const resp = await fetch(url.toString())
   if (!resp.ok) throw new Error(`GNews ${resp.status}`)
   const data = await resp.json()
-  return (data.articles || []).map((item: any) => mapBase(item, 'GNews'))
+  return (data.articles || []).map((item) => mapBase(item, 'GNews'))
 }
 
-const fetchNewsData = async (term: string, language?: string) => {
+const fetchNewsData = async (term, language) => {
   if (!NEWSDATA_API_KEY) return []
   const url = new URL(NEWSDATA_API_URL)
   url.searchParams.set('apikey', NEWSDATA_API_KEY)
@@ -77,7 +76,7 @@ const fetchNewsData = async (term: string, language?: string) => {
   const resp = await fetch(url.toString())
   if (!resp.ok) throw new Error(`NewsData.io ${resp.status}`)
   const data = await resp.json()
-  return (data.results || []).map((item: any) =>
+  return (data.results || []).map((item) =>
     mapBase(
       {
         ...item,
@@ -91,7 +90,7 @@ const fetchNewsData = async (term: string, language?: string) => {
   )
 }
 
-const fetchWorldNews = async (term: string, language?: string) => {
+const fetchWorldNews = async (term, language) => {
   if (!WORLDNEWS_API_KEY) return []
   const url = new URL(WORLDNEWS_API_URL)
   url.searchParams.set('api-key', WORLDNEWS_API_KEY)
@@ -100,7 +99,7 @@ const fetchWorldNews = async (term: string, language?: string) => {
   const resp = await fetch(url.toString())
   if (!resp.ok) throw new Error(`WorldNews ${resp.status}`)
   const data = await resp.json()
-  return (data.news || []).map((item: any) =>
+  return (data.news || []).map((item) =>
     mapBase(
       {
         ...item,
@@ -113,7 +112,7 @@ const fetchWorldNews = async (term: string, language?: string) => {
   )
 }
 
-const fetchGuardian = async (term: string) => {
+const fetchGuardian = async (term) => {
   if (!GUARDIAN_API_KEY) return []
   const url = new URL(GUARDIAN_API_URL)
   url.searchParams.set('api-key', GUARDIAN_API_KEY)
@@ -122,7 +121,7 @@ const fetchGuardian = async (term: string) => {
   const resp = await fetch(url.toString())
   if (!resp.ok) throw new Error(`Guardian ${resp.status}`)
   const data = await resp.json()
-  return (data.response?.results || []).map((item: any) =>
+  return (data.response?.results || []).map((item) =>
     mapBase(
       {
         ...item,
@@ -136,7 +135,7 @@ const fetchGuardian = async (term: string) => {
   )
 }
 
-const fetchNYT = async (term: string) => {
+const fetchNYT = async (term) => {
   if (!NYT_API_KEY) return []
   const url = new URL(NYT_API_URL)
   url.searchParams.set('q', term)
@@ -144,7 +143,7 @@ const fetchNYT = async (term: string) => {
   const resp = await fetch(url.toString())
   if (!resp.ok) throw new Error(`NYT ${resp.status}`)
   const data = await resp.json()
-  return (data.response?.docs || []).map((item: any) =>
+  return (data.response?.docs || []).map((item) =>
     mapBase(
       {
         ...item,
@@ -159,13 +158,13 @@ const fetchNYT = async (term: string) => {
   )
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   if (allowCORS(req, res)) return
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
-  const term = (req.query.term as string)?.trim() || 'ai'
-  const language = (req.query.language as string)?.trim()
-  const advanced = (req.query.advanced as string)?.trim()
+  const term = (req.query.term || '').trim() || 'ai'
+  const language = (req.query.language || '').trim() || undefined
+  const advanced = (req.query.advanced || '').trim() || undefined
 
   const tasks = [
     fetchNewsApi(term, language, advanced),
@@ -178,7 +177,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const settled = await Promise.allSettled(tasks)
-    const articles: any[] = []
+    const articles = []
     for (const result of settled) {
       if (result.status === 'fulfilled') {
         articles.push(...result.value)
@@ -186,8 +185,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.warn('Provider failed', result.reason)
       }
     }
-    const deduped: any[] = []
-    const seen = new Set<string>()
+    const deduped = []
+    const seen = new Set()
     for (const article of articles) {
       const key = normalizeUrl(article.url) || article.title || Math.random().toString()
       if (seen.has(key)) continue
@@ -196,9 +195,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (deduped.length === 0) {
-      // Fallback to stub so UI shows algo útil
-      const fallback = buildNewsResponse(term)
-      return res.status(200).json(fallback)
+      return res.status(200).json(buildNewsResponse(term))
     }
 
     return res.status(200).json({
@@ -206,7 +203,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       total_results: deduped.length,
       articles: deduped,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('news handler fatal', error)
     return res.status(200).json(buildNewsResponse(term))
   }

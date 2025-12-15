@@ -1,10 +1,9 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { allowCORS, buildNewsResponse } from '../_mockData'
+import { allowCORS, buildNewsResponse } from '../_mockData.js'
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(req, res) {
   if (allowCORS(req, res)) return
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
-  const term = (req.query.term as string) || 'demo'
+  const term = (req.query.term || '').trim() || 'demo'
   const base = buildNewsResponse(term)
   const now = new Date().toISOString()
   const articles = base.articles.map((article) => ({ ...article, term, saved_at: now }))

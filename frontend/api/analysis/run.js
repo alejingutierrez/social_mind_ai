@@ -1,7 +1,6 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { allowCORS, buildAnalysis } from '../_mockData'
+import { allowCORS, buildAnalysis } from '../_mockData.js'
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(req, res) {
   if (allowCORS(req, res)) return
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   const payload = buildAnalysis()

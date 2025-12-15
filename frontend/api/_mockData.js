@@ -1,5 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-
 const sampleArticles = [
   {
     source: { name: 'Mock Times' },
@@ -7,14 +5,15 @@ const sampleArticles = [
     title: 'Demo: conectando frontend sin backend real',
     description: 'Este es un stub servido desde Vercel para evitar llamadas a localhost.',
     url: 'https://social-mind-ai.vercel.app/mock/demo',
-    urlToImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
+    urlToImage:
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
     publishedAt: new Date().toISOString(),
     content: 'Contenido simulado para pruebas.',
     category: 'demo',
   },
 ]
 
-export const buildNewsResponse = (term: string) => ({
+export const buildNewsResponse = (term) => ({
   term,
   total_results: sampleArticles.length,
   articles: sampleArticles,
@@ -56,9 +55,9 @@ export const buildAnalysis = () => {
   }
 }
 
-export const notFound = (res: VercelResponse) => res.status(404).json({ error: 'Not found' })
+export const notFound = (res) => res.status(404).json({ error: 'Not found' })
 
-export const allowCORS = (req: VercelRequest, res: VercelResponse) => {
+export const allowCORS = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
