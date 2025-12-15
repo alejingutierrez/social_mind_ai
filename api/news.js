@@ -159,7 +159,7 @@ const fetchNYT = async (term) => {
       rawImage && rawImage.startsWith('http')
         ? rawImage
         : rawImage
-          ? `https://www.nytimes.com/${rawImage.replace(/^\\//, '')}`
+          ? `https://www.nytimes.com/${rawImage.replace(/^\//, '')}`
           : null
     return mapBase(
       {
@@ -175,7 +175,7 @@ const fetchNYT = async (term) => {
   })
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (allowCORS(req, res)) return
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
