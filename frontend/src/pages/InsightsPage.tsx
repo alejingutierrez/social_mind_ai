@@ -26,6 +26,20 @@ const InsightsPage = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [progress, setProgress] = useState({ open: false, title: '', current: 0, total: 0, message: '' })
 
+  const mapApiError = (error: unknown, fallback: string) => {
+    const messageText = error instanceof Error ? error.message : ''
+    if (messageText.includes('INSIGHTS_API_UNAVAILABLE')) {
+      return 'El backend de insights no está accesible desde Vercel. Configura VITE_INSIGHTS_API con una URL pública.'
+    }
+    if (messageText.includes('ANALYSIS_API_UNAVAILABLE')) {
+      return 'El backend de análisis no está accesible. Ajusta VITE_ANALYSIS_API a una URL pública.'
+    }
+    if (messageText.includes('NEWS_API_UNAVAILABLE')) {
+      return 'El backend de noticias no está accesible. Ajusta VITE_NEWS_API a una URL pública.'
+    }
+    return fallback
+  }
+
   const fetchInsights = async () => {
     try {
       setLoading(true)
@@ -33,7 +47,7 @@ const InsightsPage = () => {
       setInsights(data.items)
     } catch (error) {
       console.error(error)
-      message.error('Error al cargar insights')
+      message.error(mapApiError(error, 'Error al cargar insights'))
     } finally {
       setLoading(false)
     }
@@ -65,7 +79,7 @@ const InsightsPage = () => {
       navigate('/analysis')
     } catch (error) {
       console.error(error)
-      message.error('Error al generar el análisis')
+      message.error(mapApiError(error, 'Error al generar el análisis'))
     } finally {
       if (interval) window.clearInterval(interval)
       setTimeout(() => setProgress({ open: false, title: '', current: 0, total: 0, message: '' }), 600)

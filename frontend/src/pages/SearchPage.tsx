@@ -43,10 +43,24 @@ const SearchPage = () => {
   const [news, setNews] = useState<NewsArticle[]>([])
   const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState<Set<number>>(new Set())
-  const [classifying, setClassifying] = useState(false)
-  const [results, setResults] = useState<Insight[]>([])
-  const [hasSearched, setHasSearched] = useState(false)
-  const [progress, setProgress] = useState({ open: false, title: '', current: 0, total: 0, message: '' })
+const [classifying, setClassifying] = useState(false)
+const [results, setResults] = useState<Insight[]>([])
+const [hasSearched, setHasSearched] = useState(false)
+const [progress, setProgress] = useState({ open: false, title: '', current: 0, total: 0, message: '' })
+
+  const mapApiError = (error: unknown, fallback: string) => {
+    const messageText = error instanceof Error ? error.message : ''
+    if (messageText.includes('NEWS_API_UNAVAILABLE')) {
+      return 'El backend de noticias no está accesible desde Vercel. Configura VITE_NEWS_API apuntando a un host público (no localhost).'
+    }
+    if (messageText.includes('INSIGHTS_API_UNAVAILABLE')) {
+      return 'El backend de insights no está accesible. Ajusta VITE_INSIGHTS_API a una URL pública.'
+    }
+    if (messageText.includes('ANALYSIS_API_UNAVAILABLE')) {
+      return 'El backend de análisis no está accesible. Ajusta VITE_ANALYSIS_API a una URL pública.'
+    }
+    return fallback
+  }
 
   const toggleAll = () => {
     if (!news.length) return
@@ -75,7 +89,7 @@ const SearchPage = () => {
       }
     } catch (error) {
       console.error(error)
-      message.error('No se pudieron obtener las noticias')
+      message.error(mapApiError(error, 'No se pudieron obtener las noticias'))
     } finally {
       setLoading(false)
     }
@@ -118,7 +132,7 @@ const SearchPage = () => {
       }, 800)
     } catch (error) {
       console.error(error)
-      message.error('No se pudieron clasificar las noticias seleccionadas')
+      message.error(mapApiError(error, 'No se pudieron clasificar las noticias seleccionadas'))
       setProgress({ open: false, title: '', current: 0, total: 0, message: '' })
     } finally {
       setClassifying(false)
