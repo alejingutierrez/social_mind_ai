@@ -197,9 +197,10 @@ Vistas implementadas:
 
 ## Vercel (Frontend)
 
-- `vercel.json` usa `@vercel/static-build` sobre `frontend/` y agrega fallback de SPA a
-  `/index.html`. Sólo el frontend se despliega en Vercel; los servicios FastAPI siguen corriendo en
-  host o contenedores (ajusta las URLs públicas antes de producción).
+- `frontend/vercel.json` usa `@vercel/static-build` y agrega fallback de SPA a `/index.html`. El root
+  de proyecto en Vercel está fijado a `frontend`, así que sólo el frontend se despliega; los
+  servicios FastAPI siguen corriendo en host o contenedores (ajusta las URLs públicas antes de
+  producción).
 - Variables en Vercel (Production/Preview/Development): `VITE_NEWS_API`,
   `VITE_INSIGHTS_API`, `VITE_ANALYSIS_API`, todas las claves de news (`NEWS_API_KEY`,
   `GNEWS_API_KEY`, `NEWSDATA_API_KEY`, `WORLDNEWS_API_KEY`, `GUARDIAN_API_KEY`, `NYT_API_KEY` y sus
