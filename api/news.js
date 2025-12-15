@@ -39,16 +39,71 @@ const normalizeUrl = (url) => {
   }
 }
 
+const normalizeImageUrl = (raw) => {
+  if (!raw) return null
+  const value = String(raw).trim()
+  if (!value) return null
+  if (value.startsWith('//')) return `https:${value}`
+  if (/^https?:\/\//i.test(value)) return value
+  return `https://static01.nyt.com/${value.replace(/^\//, '')}`
+}
+
+const pickImage = (article) => {
+  const multimedia = article.multimedia
+  const multimediaCandidates = []
+  if (Array.isArray(multimedia)) {
+    for (const media of multimedia) {
+      if (media?.url) multimediaCandidates.push(media.url)
+      if (media?.src) multimediaCandidates.push(media.src)
+      if (media?.value) multimediaCandidates.push(media.value)
+    }
+  } else if (multimedia && typeof multimedia === 'object') {
+    multimediaCandidates.push(multimedia.url, multimedia.default?.url, multimedia.thumbnail?.url)
+  }
+
+  const rawCandidates = [
+    article.urlToImage,
+    article.image,
+    article.image_url,
+    article.imageUrl,
+    article.fields?.thumbnail,
+    ...multimediaCandidates,
+  ]
+  for (const raw of rawCandidates) {
+    const normalized = normalizeImageUrl(raw)
+    if (normalized) return normalized
+  }
+  return null
+}
+
+const pickCategory = (raw) => {
+  if (!raw) return null
+  if (Array.isArray(raw)) {
+    for (const value of raw) {
+      if (value) return String(value)
+    }
+    return null
+  }
+  return String(raw)
+}
+
 const mapBase = (article, fallbackSource) => ({
   source: { id: article.source?.id ?? null, name: article.source?.name ?? fallbackSource },
   author: article.author ?? null,
   title: article.title ?? article.headline?.main ?? '',
   description: article.description ?? article.abstract ?? article.trailText ?? null,
   url: article.url ?? article.webUrl ?? article.link ?? null,
-  urlToImage: article.urlToImage ?? article.image_url ?? article.fields?.thumbnail ?? null,
-  publishedAt: article.publishedAt ?? article.publishedAtUtc ?? article.firstPublished ?? article.pub_date ?? null,
+  urlToImage: pickImage(article),
+  publishedAt:
+    article.publishedAt ??
+    article.webPublicationDate ??
+    article.publish_date ??
+    article.publishedAtUtc ??
+    article.firstPublished ??
+    article.pub_date ??
+    null,
   content: article.content ?? null,
-  category: article.category ?? null,
+  category: pickCategory(article.category ?? article.categories ?? article.sectionName ?? article.section_name ?? article.section),
 })
 
 const fetchNewsApi = async (term, language, advanced) => {
@@ -153,26 +208,18 @@ const fetchNYT = async (term) => {
   const resp = await fetchWithTimeout(url.toString())
   if (!resp.ok) throw new Error(`NYT ${resp.status}`)
   const data = await resp.json()
-  return (data.response?.docs || []).map((item) => {
-    const rawImage = item.multimedia?.[0]?.url
-    const fullImage =
-      rawImage && rawImage.startsWith('http')
-        ? rawImage
-        : rawImage
-          ? `https://www.nytimes.com/${rawImage.replace(/^\//, '')}`
-          : null
-    return mapBase(
+  return (data.response?.docs || []).map((item) =>
+    mapBase(
       {
         ...item,
         url: item.web_url,
-        urlToImage: fullImage,
         publishedAt: item.pub_date,
         description: item.abstract,
         source: { name: item.source },
       },
       'NYT',
-    )
-  })
+    ),
+  )
 }
 
 module.exports = async function handler(req, res) {
@@ -199,14 +246,14 @@ module.exports = async function handler(req, res) {
       }
     }
 
-  const tasks = [
-    runProvider('NewsAPI', () => fetchNewsApi(term, language, advanced)),
-    runProvider('GNews', () => fetchGNews(term, language)),
-    runProvider('NewsData', () => fetchNewsData(term, language)),
-    runProvider('WorldNews', () => fetchWorldNews(term, language)),
-    runProvider('Guardian', () => fetchGuardian(term)),
-    runProvider('NYT', () => fetchNYT(term)),
-  ]
+    const tasks = [
+      runProvider('NewsAPI', () => fetchNewsApi(term, language, advanced)),
+      runProvider('GNews', () => fetchGNews(term, language)),
+      runProvider('NewsData', () => fetchNewsData(term, language)),
+      runProvider('WorldNews', () => fetchWorldNews(term, language)),
+      runProvider('Guardian', () => fetchGuardian(term)),
+      runProvider('NYT', () => fetchNYT(term)),
+    ]
 
     const results = await Promise.all(tasks)
     const articles = results.flat()

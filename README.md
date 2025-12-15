@@ -202,7 +202,8 @@ Vistas implementadas:
   servicios FastAPI siguen corriendo en host o contenedores (ajusta las URLs públicas antes de
   producción).
 - Variables en Vercel (Production/Preview/Development): `VITE_NEWS_API`,
-  `VITE_INSIGHTS_API`, `VITE_ANALYSIS_API`, todas las claves de news (`NEWS_API_KEY`,
+  `VITE_INSIGHTS_API`, `VITE_ANALYSIS_API`, `VITE_IMAGE_PROXY` (opcional, usa `/api` del mismo
+  dominio en producción si no se define), todas las claves de news (`NEWS_API_KEY`,
   `GNEWS_API_KEY`, `NEWSDATA_API_KEY`, `WORLDNEWS_API_KEY`, `GUARDIAN_API_KEY`, `NYT_API_KEY` y sus
   URLs/limits), y el bloque de Postgres/Neon (`DATABASE_URL`, `POSTGRES_URL`,
   `POSTGRES_URL_NON_POOLING`, `POSTGRES_PRISMA_URL`, `PGHOST[_UNPOOLED]`, `PGUSER`, `PGDATABASE`,
