@@ -23,6 +23,7 @@ import { classifyArticles, searchNews } from '../api'
 import type { Insight, NewsArticle } from '../types'
 import { useNavigate } from 'react-router-dom'
 import ProgressModal from '../components/ProgressModal'
+import { proxyImageUrl } from '../utils/imageProxy'
 
 const { Title, Paragraph, Text } = Typography
 const FALLBACK_IMG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1MCIgZmlsbD0iI2U1ZTVlNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAiIGR5PSIuMzVlbSIgZm9udC1zaXplPSIxNnB4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5Ij5JbWFnZW4gZGVzb24gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='
@@ -288,7 +289,7 @@ const [results, setResults] = useState<Insight[]>([])
                   cover={
                     article.urlToImage ? (
                       <img
-                        src={article.urlToImage}
+                        src={proxyImageUrl(article.urlToImage) ?? FALLBACK_IMG}
                         alt={article.title ?? 'news'}
                         style={{ height: 170, objectFit: 'cover' }}
                         referrerPolicy="no-referrer"

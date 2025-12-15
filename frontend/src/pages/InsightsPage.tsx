@@ -16,6 +16,7 @@ import type { Insight } from '../types'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import ProgressModal from '../components/ProgressModal'
+import { proxyImageUrl } from '../utils/imageProxy'
 
 const { Title, Paragraph, Text } = Typography
 const InsightsPage = () => {
@@ -108,7 +109,7 @@ const columns = [
       <Space align="start">
         {record.article_image && (
           <img
-            src={record.article_image}
+            src={proxyImageUrl(record.article_image) ?? undefined}
             alt={record.article_title ?? ''}
             style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8 }}
           />

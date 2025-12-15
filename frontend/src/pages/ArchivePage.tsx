@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Badge, Card, Col, Empty, Row, Space, Tag, Typography, Button, Skeleton, Input, Radio, Select } from 'antd'
 import { fetchNewsArchive, fetchNewsArchiveMeta } from '../api'
 import type { ArchiveArticle, ArchiveMeta } from '../types'
+import { proxyImageUrl } from '../utils/imageProxy'
 
 const PAGE_SIZE = 12
 const { Title, Paragraph, Text } = Typography
@@ -181,7 +182,7 @@ const ArchivePage = () => {
                 cover={
                   hero.urlToImage ? (
                     <img
-                      src={hero.urlToImage}
+                      src={proxyImageUrl(hero.urlToImage) ?? FALLBACK_IMG}
                       alt={hero.title ?? 'news'}
                       style={{ maxHeight: 340, objectFit: 'cover' }}
                       referrerPolicy="no-referrer"
@@ -226,7 +227,7 @@ const ArchivePage = () => {
                     cover={
                       article.urlToImage ? (
                         <img
-                          src={article.urlToImage}
+                          src={proxyImageUrl(article.urlToImage) ?? FALLBACK_IMG}
                           alt={article.title ?? 'news'}
                           style={{ height: 180, objectFit: 'cover' }}
                           referrerPolicy="no-referrer"
