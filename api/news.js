@@ -143,19 +143,26 @@ const fetchNYT = async (term) => {
   const resp = await fetch(url.toString())
   if (!resp.ok) throw new Error(`NYT ${resp.status}`)
   const data = await resp.json()
-  return (data.response?.docs || []).map((item) =>
-    mapBase(
+  return (data.response?.docs || []).map((item) => {
+    const rawImage = item.multimedia?.[0]?.url
+    const fullImage =
+      rawImage && rawImage.startsWith('http')
+        ? rawImage
+        : rawImage
+          ? `https://www.nytimes.com/${rawImage.replace(/^\\//, '')}`
+          : null
+    return mapBase(
       {
         ...item,
         url: item.web_url,
-        urlToImage: item.multimedia?.[0]?.url,
+        urlToImage: fullImage,
         publishedAt: item.pub_date,
         description: item.abstract,
         source: { name: item.source },
       },
       'NYT',
-    ),
-  )
+    )
+  })
 }
 
 export default async function handler(req, res) {

@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   try {
     const upstream = await fetch(target)
     if (!upstream.ok) {
-      return res.status(upstream.status).json({ error: `Upstream ${upstream.status}` })
+      return fallback(res, upstream.status)
     }
     const contentType = upstream.headers.get('content-type') || 'application/octet-stream'
     const buffer = Buffer.from(await upstream.arrayBuffer())
@@ -22,6 +22,16 @@ export default async function handler(req, res) {
     return res.status(200).send(buffer)
   } catch (error) {
     console.warn('proxy-image failed', error)
-    return res.status(502).json({ error: 'Proxy failed' })
+    return fallback(res, 502)
   }
+}
+
+const fallback = (res, status = 502) => {
+  // 1x1 transparent PNG
+  const pngBase64 =
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII='
+  const buffer = Buffer.from(pngBase64, 'base64')
+  res.setHeader('Content-Type', 'image/png')
+  res.setHeader('Cache-Control', 'public, max-age=60')
+  res.status(status).send(buffer)
 }
