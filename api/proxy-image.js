@@ -38,6 +38,15 @@ const asWsrv = (url) => {
   }
 }
 
+const asWeserv = (url) => {
+  try {
+    const cleaned = url.replace(/^https?:\/\//i, '')
+    return `https://images.weserv.nl/?url=${encodeURIComponent(cleaned)}`
+  } catch {
+    return null
+  }
+}
+
 const buildHeaders = (referer) => {
   const headers = {
     'User-Agent':
@@ -69,6 +78,7 @@ module.exports = async function handler(req, res) {
           target,
           target.startsWith('http://') ? target.replace(/^http:\/\//, 'https://') : null,
           asWsrv(preferred),
+          asWeserv(preferred),
         ].filter(Boolean),
       ),
     )
