@@ -97,10 +97,52 @@ export interface AggregatedAnalysis {
   riesgos_reputacionales: SummaryItem[]
 }
 
-export interface AnalysisHistoryItem extends AggregatedAnalysis {
+export interface EnrichedAnalysis {
+  // Campos nuevos del análisis periodístico enriquecido
+  sintesis_general?: string | null
+  narrativa_principal?: string | null
+  narrativas_alternativas?: string | null
+  framing_predominante?: string | null
+  linea_temporal?: string | null
+  contexto_necesario?: string | null
+  actores_principales?: string | null
+  voces_presentes?: string | null
+  voces_ausentes?: string | null
+  posiciones_enfrentadas?: string | null
+  puntos_de_consenso?: string | null
+  puntos_de_conflicto?: string | null
+  datos_clave?: string | null
+  fuentes_primarias?: string | null
+  citas_destacadas?: string | null
+  tono_general_cobertura?: string | null
+  equilibrio_cobertura?: string | null
+  calidad_periodistica?: string | null
+  nivel_credibilidad?: string | null
+  consistencia_hechos?: string | null
+  verificacion_necesaria?: string | null
+  sesgos_identificados?: string | null
+  lenguaje_cargado?: string | null
+  epicentro_geografico?: string | null
+  alcance_geografico?: string | null
+  zonas_afectadas?: string | null
+  temas_dominantes?: string | null
+  temas_emergentes?: string | null
+  palabras_clave_frecuentes?: string | null
+  hashtags_tendencia?: string | null
+  impacto_social_proyectado?: string | null
+  impacto_politico_proyectado?: string | null
+  impacto_economico_proyectado?: string | null
+  escenarios_posibles?: string | null
+  eventos_por_vigilar?: string | null
+  aspectos_ignorados?: string | null
+  audiencia_objetivo_agregada?: string | null
+  nivel_tecnico?: string | null
+}
+
+export interface AnalysisHistoryItem extends AggregatedAnalysis, EnrichedAnalysis {
   id: number
   created_at: string
   insight_ids: number[]
 }
 
-export type AggregatedResponse = AggregatedAnalysis
+export type AggregatedResponse = AggregatedAnalysis & EnrichedAnalysis

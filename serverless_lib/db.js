@@ -99,6 +99,46 @@ async function ensureSchema() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
     CREATE INDEX IF NOT EXISTS idx_analysis_created ON analysis_results(created_at DESC);
+
+    -- Nuevos campos para análisis periodístico enriquecido
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS sintesis_general TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS narrativa_principal TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS narrativas_alternativas TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS framing_predominante TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS linea_temporal TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS contexto_necesario TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS actores_principales TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS voces_presentes TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS voces_ausentes TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS posiciones_enfrentadas TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS puntos_de_consenso TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS puntos_de_conflicto TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS datos_clave TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS fuentes_primarias TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS citas_destacadas TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS tono_general_cobertura TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS equilibrio_cobertura TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS calidad_periodistica TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS nivel_credibilidad TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS consistencia_hechos TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS verificacion_necesaria TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS sesgos_identificados TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS lenguaje_cargado TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS epicentro_geografico TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS alcance_geografico TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS zonas_afectadas TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS temas_dominantes TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS temas_emergentes TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS palabras_clave_frecuentes TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS hashtags_tendencia TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS impacto_social_proyectado TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS impacto_politico_proyectado TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS impacto_economico_proyectado TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS escenarios_posibles TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS eventos_por_vigilar TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS aspectos_ignorados TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS audiencia_objetivo_agregada TEXT;
+    ALTER TABLE analysis_results ADD COLUMN IF NOT EXISTS nivel_tecnico TEXT;
   `)
   schemaReady = true
 }
