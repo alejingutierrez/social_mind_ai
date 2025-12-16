@@ -325,7 +325,14 @@ async function listArchive({ term, limit = 50, offset = 0, order = 'desc' }) {
     `,
     params,
   )
-  return { total, articles: rowsRes.rows }
+  // Transform database snake_case to frontend camelCase
+  const articles = rowsRes.rows.map((row) => ({
+    ...row,
+    urlToImage: row.url_to_image,
+    publishedAt: row.published_at,
+    saved_at: row.created_at,
+  }))
+  return { total, articles }
 }
 
 async function archiveMeta(limit = 50) {
