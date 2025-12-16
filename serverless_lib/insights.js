@@ -110,7 +110,7 @@ async function saveInsight(term, article, llm) {
       impacto_social, impacto_economico, impacto_politico, palabras_clave_contextuales,
       trending_topics, analisis_competitivo, credibilidad_fuente, sesgo_detectado,
       localizacion_geografica, fuentes_citadas, datos_numericos, urgencia, audiencia_objetivo
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34)
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35)
     RETURNING *
     `,
     values,

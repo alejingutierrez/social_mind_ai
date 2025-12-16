@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 NEWS_SERVICE_URL = os.environ.get("NEWS_SERVICE_URL", "http://news_service:8080")
 OPENAI_API_URL = os.environ.get("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-LLM_MODEL = os.environ.get("LLM_MODEL", "gpt-4o")
+LLM_MODEL = os.environ.get("LLM_MODEL", "gpt-4o-mini")
 OPENAI_TIMEOUT = int(os.environ.get("OPENAI_TIMEOUT", "120"))
 DB_PATH = os.environ.get("INSIGHTS_DB_PATH", "/data/insights.db")
 MAX_ARTICLES = int(os.environ.get("MAX_ARTICLES", "10"))
