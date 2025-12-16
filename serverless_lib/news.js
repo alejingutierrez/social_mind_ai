@@ -274,7 +274,18 @@ async function saveArticles(term, articles, provider = 'newsapi') {
         url_hash, url_to_image, category, published_at
       )
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-      ON CONFLICT (url_hash) DO NOTHING
+      ON CONFLICT (url_hash) DO UPDATE SET
+        term = EXCLUDED.term,
+        provider = EXCLUDED.provider,
+        source = EXCLUDED.source,
+        author = EXCLUDED.author,
+        title = EXCLUDED.title,
+        description = EXCLUDED.description,
+        content = EXCLUDED.content,
+        url = EXCLUDED.url,
+        url_to_image = COALESCE(EXCLUDED.url_to_image, news_articles.url_to_image),
+        category = EXCLUDED.category,
+        published_at = COALESCE(EXCLUDED.published_at, news_articles.published_at)
       `,
       values,
     )
