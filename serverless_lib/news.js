@@ -294,11 +294,13 @@ async function saveArticles(term, articles, provider = 'newsapi') {
 async function listArchive({ term, limit = 50, offset = 0, order = 'desc' }) {
   const params = []
   const where = []
+  // Excluir artículos sin fecha de publicación
+  where.push('published_at IS NOT NULL')
   if (term) {
     params.push(term)
     where.push(`term = $${params.length}`)
   }
-  const whereClause = where.length ? `WHERE ${where.join(' AND ')}` : ''
+  const whereClause = `WHERE ${where.join(' AND ')}`
   const totalRes = await query(`SELECT COUNT(1) FROM news_articles ${whereClause}`, params)
   const total = Number(totalRes.rows[0].count || 0)
   params.push(limit, offset)
@@ -307,7 +309,7 @@ async function listArchive({ term, limit = 50, offset = 0, order = 'desc' }) {
     `
     SELECT * FROM news_articles
     ${whereClause}
-    ORDER BY published_at ${orderDir} NULLS LAST, created_at ${orderDir}
+    ORDER BY published_at ${orderDir}, created_at ${orderDir}
     LIMIT $${params.length - 1} OFFSET $${params.length}
     `,
     params,
