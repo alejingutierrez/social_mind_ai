@@ -8,6 +8,23 @@ const PAGE_SIZE = 12
 const { Title, Paragraph, Text } = Typography
 const FALLBACK_IMG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1MCIgZmlsbD0iI2U1ZTVlNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAiIGR5PSIuMzVlbSIgZm9udC1zaXplPSIxNnB4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5Ij5JbWFnZW4gZGVzb24gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='
 
+const formatDate = (dateValue?: string | null): string => {
+  if (!dateValue) return 'Fecha no disponible'
+  try {
+    const date = new Date(dateValue)
+    if (isNaN(date.getTime())) return 'Fecha no disponible'
+    return date.toLocaleString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch {
+    return 'Fecha no disponible'
+  }
+}
+
 const ArchivePage = () => {
   const [articles, setArticles] = useState<ArchiveArticle[]>([])
   const [total, setTotal] = useState(0)
@@ -206,9 +223,7 @@ const ArchivePage = () => {
                     {hero.description || hero.content}
                   </Paragraph>
                   <Text type="secondary">
-                    {hero.publishedAt
-                      ? new Date(hero.publishedAt).toLocaleString()
-                      : new Date(hero.saved_at).toLocaleString()}
+                    {formatDate(hero.publishedAt || hero.saved_at)}
                   </Text>
                   {hero.url && (
                     <a href={hero.url} target="_blank" rel="noreferrer">
@@ -250,9 +265,7 @@ const ArchivePage = () => {
                         {article.description || article.content}
                       </Paragraph>
                       <Text type="secondary">
-                        {article.publishedAt
-                          ? new Date(article.publishedAt).toLocaleString()
-                          : new Date(article.saved_at).toLocaleString()}
+                        {formatDate(article.publishedAt || article.saved_at)}
                       </Text>
                       {article.url && (
                         <a href={article.url} target="_blank" rel="noreferrer">
