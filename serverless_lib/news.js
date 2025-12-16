@@ -177,6 +177,7 @@ async function fetchGuardian(term) {
     mapBase(
       {
         ...item,
+        title: item.webTitle,
         url: item.webUrl,
         urlToImage: item.fields?.thumbnail,
         description: item.fields?.trailText,
@@ -195,18 +196,25 @@ async function fetchNYT(term) {
   const resp = await fetchWithTimeout(url.toString())
   if (!resp.ok) throw new Error(`NYT ${resp.status}`)
   const data = await resp.json()
-  return (data.response?.docs || []).map((item) =>
-    mapBase(
+  return (data.response?.docs || []).map((item) => {
+    // NYT multimedia structure: find first image with format "Large Thumbnail" or any image
+    const multimedia = item.multimedia || []
+    const imageObj = multimedia.find(m => m.subtype === 'xlarge' || m.subtype === 'superJumbo') || multimedia[0]
+    const imageUrl = imageObj ? `https://www.nytimes.com/${imageObj.url}` : null
+
+    return mapBase(
       {
         ...item,
+        title: item.headline?.main || item.headline?.print_headline,
         url: item.web_url,
+        urlToImage: imageUrl,
         publishedAt: item.pub_date,
         description: item.abstract,
-        source: { name: item.source },
+        source: { name: item.source || 'The New York Times' },
       },
       'NYT',
-    ),
-  )
+    )
+  })
 }
 
 async function fetchNews(term, language) {
