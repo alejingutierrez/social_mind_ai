@@ -307,7 +307,7 @@ async function listArchive({ term, limit = 50, offset = 0, order = 'desc' }) {
     `
     SELECT * FROM news_articles
     ${whereClause}
-    ORDER BY created_at ${orderDir}
+    ORDER BY published_at ${orderDir} NULLS LAST, created_at ${orderDir}
     LIMIT $${params.length - 1} OFFSET $${params.length}
     `,
     params,
