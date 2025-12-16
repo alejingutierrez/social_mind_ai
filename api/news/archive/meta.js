@@ -1,10 +1,13 @@
-const { allowCORS } = require('../../_mockData')
+const { archiveMeta } = require('../../../serverless_lib/news')
 
-module.exports = function handler(req, res) {
-  if (allowCORS(req, res)) return
+module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
-  return res.status(200).json({
-    sources: [{ value: 'NewsAPI', count: 1 }],
-    categories: [{ value: 'demo', count: 1 }],
-  })
+  const limit = Math.min(Number(req.query.limit) || 50, 200)
+  try {
+    const meta = await archiveMeta(limit)
+    return res.status(200).json(meta)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unexpected error'
+    return res.status(502).json({ error: message })
+  }
 }
