@@ -197,10 +197,11 @@ async function fetchNYT(term) {
   if (!resp.ok) throw new Error(`NYT ${resp.status}`)
   const data = await resp.json()
   return (data.response?.docs || []).map((item) => {
-    // NYT multimedia structure: find first image with format "Large Thumbnail" or any image
+    // NYT multimedia structure: find first image with best quality
     const multimedia = item.multimedia || []
-    const imageObj = multimedia.find(m => m.subtype === 'xlarge' || m.subtype === 'superJumbo') || multimedia[0]
-    const imageUrl = imageObj ? `https://www.nytimes.com/${imageObj.url}` : null
+    const imageObj = multimedia.find(m => m?.subtype === 'xlarge' || m?.subtype === 'superJumbo') || multimedia[0]
+    // normalizeImageUrl will handle prepending https://static01.nyt.com/ for relative URLs
+    const imageUrl = imageObj?.url || null
 
     return mapBase(
       {
