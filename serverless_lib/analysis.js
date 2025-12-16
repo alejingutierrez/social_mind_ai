@@ -72,11 +72,66 @@ async function runAggregation(term, articles) {
 async function saveAnalysis(term, insightIds, result) {
   const { rows } = await query(
     `
-    INSERT INTO analysis_results (term, insight_ids, result_json, count)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO analysis_results (
+      term, insight_ids, result_json, count,
+      sintesis_general, narrativa_principal, narrativas_alternativas, framing_predominante,
+      linea_temporal, contexto_necesario, actores_principales, voces_presentes, voces_ausentes,
+      posiciones_enfrentadas, puntos_de_consenso, puntos_de_conflicto, datos_clave,
+      fuentes_primarias, citas_destacadas, tono_general_cobertura, equilibrio_cobertura,
+      calidad_periodistica, nivel_credibilidad, consistencia_hechos, verificacion_necesaria,
+      sesgos_identificados, lenguaje_cargado, epicentro_geografico, alcance_geografico,
+      zonas_afectadas, temas_dominantes, temas_emergentes, palabras_clave_frecuentes,
+      hashtags_tendencia, impacto_social_proyectado, impacto_politico_proyectado,
+      impacto_economico_proyectado, escenarios_posibles, eventos_por_vigilar,
+      aspectos_ignorados, audiencia_objetivo_agregada, nivel_tecnico
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42)
     RETURNING *
     `,
-    [term, insightIds, JSON.stringify(result), insightIds.length],
+    [
+      term,
+      insightIds,
+      JSON.stringify(result),
+      insightIds.length,
+      result.sintesis_general || null,
+      result.narrativa_principal || null,
+      result.narrativas_alternativas || null,
+      result.framing_predominante || null,
+      result.linea_temporal || null,
+      result.contexto_necesario || null,
+      result.actores_principales || null,
+      result.voces_presentes || null,
+      result.voces_ausentes || null,
+      result.posiciones_enfrentadas || null,
+      result.puntos_de_consenso || null,
+      result.puntos_de_conflicto || null,
+      result.datos_clave || null,
+      result.fuentes_primarias || null,
+      result.citas_destacadas || null,
+      result.tono_general_cobertura || null,
+      result.equilibrio_cobertura || null,
+      result.calidad_periodistica || null,
+      result.nivel_credibilidad || null,
+      result.consistencia_hechos || null,
+      result.verificacion_necesaria || null,
+      result.sesgos_identificados || null,
+      result.lenguaje_cargado || null,
+      result.epicentro_geografico || null,
+      result.alcance_geografico || null,
+      result.zonas_afectadas || null,
+      result.temas_dominantes || null,
+      result.temas_emergentes || null,
+      result.palabras_clave_frecuentes || null,
+      result.hashtags_tendencia || null,
+      result.impacto_social_proyectado || null,
+      result.impacto_politico_proyectado || null,
+      result.impacto_economico_proyectado || null,
+      result.escenarios_posibles || null,
+      result.eventos_por_vigilar || null,
+      result.aspectos_ignorados || null,
+      result.audiencia_objetivo_agregada || null,
+      result.nivel_tecnico || null,
+    ],
   )
   return rows[0]
 }
