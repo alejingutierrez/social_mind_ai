@@ -101,74 +101,123 @@ const InsightsPage = () => {
     }
   }
 
-const columns = [
-  {
-    title: 'Artículo',
-    dataIndex: 'article_title',
-    render: (_: string, record: Insight) => (
-      <Space align="start">
-        {record.article_image && (
-          <img
-            src={proxyImageUrl(record.article_image) ?? undefined}
-            alt={record.article_title ?? ''}
-            style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8 }}
-          />
-        )}
-        <div>
-          <Text strong>{record.article_title ?? 'Sin título'}</Text>
-          <Paragraph ellipsis={{ rows: 2 }} type="secondary" style={{ marginBottom: 4 }}>
-            {record.article_description}
-          </Paragraph>
-          {record.article_url && (
-            <a href={record.article_url} target="_blank" rel="noreferrer" style={{ fontSize: 12 }}>
-              Ver artículo original →
-            </a>
+const getUrgencyColor = (urgencia?: string | null) => {
+    const u = urgencia?.toLowerCase()
+    if (u === 'critica') return 'red'
+    if (u === 'alta') return 'orange'
+    if (u === 'media') return 'gold'
+    return 'green'
+  }
+
+  const getCredibilityColor = (credibilidad?: number | null) => {
+    if (!credibilidad) return 'default'
+    if (credibilidad >= 0.8) return 'green'
+    if (credibilidad >= 0.6) return 'blue'
+    if (credibilidad >= 0.4) return 'orange'
+    return 'red'
+  }
+
+  const columns = [
+    {
+      title: 'Artículo',
+      dataIndex: 'article_title',
+      width: 300,
+      render: (_: string, record: Insight) => (
+        <Space align="start">
+          {record.article_image && (
+            <img
+              src={proxyImageUrl(record.article_image) ?? undefined}
+              alt={record.article_title ?? ''}
+              style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8 }}
+            />
           )}
-        </div>
-      </Space>
-    )
-  },
-  {
-    title: 'Sentimiento',
-    dataIndex: 'sentimiento',
-    width: 120,
-    render: (value: string) => {
-      let color = 'default'
-      if (value?.toLowerCase().includes('positivo')) color = 'success'
-      if (value?.toLowerCase().includes('negativo')) color = 'error'
-      if (value?.toLowerCase().includes('neutro')) color = 'warning'
-      return <Tag color={color}>{value || '—'}</Tag>
+          <div style={{ maxWidth: 220 }}>
+            <Text strong>{record.article_title ?? 'Sin título'}</Text>
+            <Paragraph ellipsis={{ rows: 2 }} type="secondary" style={{ marginBottom: 4, fontSize: 12 }}>
+              {record.resumen_ejecutivo || record.article_description}
+            </Paragraph>
+            {record.article_url && (
+              <a href={record.article_url} target="_blank" rel="noreferrer" style={{ fontSize: 12 }}>
+                Ver artículo →
+              </a>
+            )}
+          </div>
+        </Space>
+      )
     },
-  },
-  {
-    title: 'Categoría',
-    dataIndex: 'categoria',
-    width: 120,
-  },
-  {
-    title: 'Marca / Entidad',
-    dataIndex: 'marca',
-    width: 160,
-    render: (_: any, record: Insight) => (
-      <Space direction="vertical" size={0}>
-        {record.marca && <Tag color="geekblue">{record.marca}</Tag>}
-        {record.entidad && <Tag color="purple">{record.entidad}</Tag>}
-      </Space>
-    ),
-  },
-  {
-    title: 'Contenido (extracto)',
-    dataIndex: 'article_content',
-    ellipsis: true,
-    render: (value: string) => (value ? `${value.slice(0, 140)}...` : '—'),
-  },
-  {
-    title: 'Fecha',
-    dataIndex: 'created_at',
-    width: 180,
-    render: (val: string) => <Text type="secondary" style={{ fontSize: '12px' }}>{new Date(val).toLocaleString()}</Text>
-  },
-]
+    {
+      title: 'Sentimiento',
+      dataIndex: 'sentimiento',
+      width: 120,
+      render: (value: string) => {
+        let color = 'default'
+        if (value?.toLowerCase().includes('positivo')) color = 'success'
+        if (value?.toLowerCase().includes('negativo')) color = 'error'
+        if (value?.toLowerCase().includes('neutro')) color = 'warning'
+        return <Tag color={color}>{value || '—'}</Tag>
+      },
+    },
+    {
+      title: 'Urgencia',
+      dataIndex: 'urgencia',
+      width: 100,
+      render: (value: string) => value ? <Tag color={getUrgencyColor(value)}>{value}</Tag> : <Text type="secondary">—</Text>,
+    },
+    {
+      title: 'Credibilidad',
+      dataIndex: 'credibilidad_fuente',
+      width: 120,
+      render: (value: number) => value ? (
+        <Tag color={getCredibilityColor(value)}>
+          {(value * 100).toFixed(0)}%
+        </Tag>
+      ) : <Text type="secondary">—</Text>,
+    },
+    {
+      title: 'Tono',
+      dataIndex: 'tono',
+      width: 110,
+      render: (value: string) => value ? <Tag>{value}</Tag> : <Text type="secondary">—</Text>,
+    },
+    {
+      title: 'Categoría',
+      dataIndex: 'categoria',
+      width: 120,
+      render: (value: string) => value || '—',
+    },
+    {
+      title: 'Marca / Entidad',
+      dataIndex: 'marca',
+      width: 160,
+      render: (_: any, record: Insight) => (
+        <Space direction="vertical" size={0}>
+          {record.marca && <Tag color="geekblue">{record.marca}</Tag>}
+          {record.entidad && <Tag color="purple">{record.entidad}</Tag>}
+        </Space>
+      ),
+    },
+    {
+      title: 'Impacto',
+      width: 100,
+      render: (_: any, record: Insight) => {
+        const impacts = []
+        if (record.impacto_social) impacts.push('Social')
+        if (record.impacto_economico) impacts.push('Económico')
+        if (record.impacto_politico) impacts.push('Político')
+        return impacts.length ? (
+          <Space direction="vertical" size={2}>
+            {impacts.map((imp) => <Tag key={imp} color="cyan" style={{ fontSize: 10 }}>{imp}</Tag>)}
+          </Space>
+        ) : <Text type="secondary">—</Text>
+      },
+    },
+    {
+      title: 'Fecha',
+      dataIndex: 'created_at',
+      width: 160,
+      render: (val: string) => <Text type="secondary" style={{ fontSize: '12px' }}>{new Date(val).toLocaleString()}</Text>
+    },
+  ]
 
   const groupedInsights = useMemo(() => {
     const map = new Map<string, Insight[]>()
@@ -256,8 +305,187 @@ const columns = [
                   dataSource={items}
                   rowKey="id"
                   pagination={{ pageSize: 8 }}
-                  scroll={{ x: 1200 }}
+                  scroll={{ x: 1500 }}
                   size="small"
+                  expandable={{
+                    expandedRowRender: (record) => (
+                      <div style={{ padding: '16px', background: '#fafafa', borderRadius: 8 }}>
+                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                          {record.resumen_ejecutivo && (
+                            <div>
+                              <Text strong>Resumen Ejecutivo:</Text>
+                              <Paragraph style={{ marginTop: 8 }}>{record.resumen_ejecutivo}</Paragraph>
+                            </div>
+                          )}
+
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+                            {record.temas_principales && (
+                              <div>
+                                <Text strong>Temas Principales:</Text>
+                                <div style={{ marginTop: 8 }}>
+                                  {record.temas_principales.split(',').map((tema, i) => (
+                                    <Tag key={i} color="blue" style={{ marginBottom: 4 }}>{tema.trim()}</Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {record.subtemas && (
+                              <div>
+                                <Text strong>Subtemas:</Text>
+                                <div style={{ marginTop: 8 }}>
+                                  {record.subtemas.split(',').map((subtema, i) => (
+                                    <Tag key={i} color="cyan" style={{ marginBottom: 4 }}>{subtema.trim()}</Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {record.stakeholders && (
+                              <div>
+                                <Text strong>Stakeholders:</Text>
+                                <div style={{ marginTop: 8 }}>
+                                  {record.stakeholders.split(',').map((sh, i) => (
+                                    <Tag key={i} color="purple" style={{ marginBottom: 4 }}>{sh.trim()}</Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {record.localizacion_geografica && (
+                              <div>
+                                <Text strong>Ubicación:</Text>
+                                <div style={{ marginTop: 8 }}>
+                                  {record.localizacion_geografica.split(',').map((loc, i) => (
+                                    <Tag key={i} color="green" style={{ marginBottom: 4 }}>{loc.trim()}</Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {record.impacto_social && (
+                            <div>
+                              <Text strong>Impacto Social:</Text>
+                              <Paragraph style={{ marginTop: 8, marginLeft: 16 }}>{record.impacto_social}</Paragraph>
+                            </div>
+                          )}
+
+                          {record.impacto_economico && (
+                            <div>
+                              <Text strong>Impacto Económico:</Text>
+                              <Paragraph style={{ marginTop: 8, marginLeft: 16 }}>{record.impacto_economico}</Paragraph>
+                            </div>
+                          )}
+
+                          {record.impacto_politico && (
+                            <div>
+                              <Text strong>Impacto Político:</Text>
+                              <Paragraph style={{ marginTop: 8, marginLeft: 16 }}>{record.impacto_politico}</Paragraph>
+                            </div>
+                          )}
+
+                          {record.analisis_competitivo && (
+                            <div>
+                              <Text strong>Análisis Competitivo:</Text>
+                              <Paragraph style={{ marginTop: 8, marginLeft: 16 }}>{record.analisis_competitivo}</Paragraph>
+                            </div>
+                          )}
+
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+                            {record.palabras_clave_contextuales && (
+                              <div>
+                                <Text strong>Keywords:</Text>
+                                <div style={{ marginTop: 8 }}>
+                                  {record.palabras_clave_contextuales.split(',').map((kw, i) => (
+                                    <Tag key={i} color="magenta" style={{ marginBottom: 4 }}>{kw.trim()}</Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {record.trending_topics && (
+                              <div>
+                                <Text strong>Trending Topics:</Text>
+                                <div style={{ marginTop: 8 }}>
+                                  {record.trending_topics.split(',').map((tt, i) => (
+                                    <Tag key={i} color="volcano" style={{ marginBottom: 4 }}>{tt.trim()}</Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {record.etiquetas && (
+                              <div>
+                                <Text strong>Etiquetas:</Text>
+                                <div style={{ marginTop: 8 }}>
+                                  {record.etiquetas.split(',').map((tag, i) => (
+                                    <Tag key={i} style={{ marginBottom: 4 }}>{tag.trim()}</Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {record.cita_clave && (
+                            <div style={{ background: '#fff', padding: 12, borderRadius: 8, borderLeft: '4px solid var(--accent-color)' }}>
+                              <Text strong>Cita Clave:</Text>
+                              <Paragraph italic style={{ marginTop: 8 }}>"{record.cita_clave}"</Paragraph>
+                            </div>
+                          )}
+
+                          {record.accion_recomendada && (
+                            <div style={{ background: '#e6f7ff', padding: 12, borderRadius: 8, border: '1px solid #91d5ff' }}>
+                              <Text strong>Acción Recomendada:</Text>
+                              <Paragraph style={{ marginTop: 8, marginBottom: 0 }}>{record.accion_recomendada}</Paragraph>
+                            </div>
+                          )}
+
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginTop: 12 }}>
+                            {record.sesgo_detectado && (
+                              <div>
+                                <Text type="secondary">Sesgo:</Text>
+                                <Tag color="orange" style={{ marginLeft: 8 }}>{record.sesgo_detectado}</Tag>
+                              </div>
+                            )}
+                            {record.audiencia_objetivo && (
+                              <div>
+                                <Text type="secondary">Audiencia:</Text>
+                                <Tag style={{ marginLeft: 8 }}>{record.audiencia_objetivo}</Tag>
+                              </div>
+                            )}
+                            {record.relevancia && (
+                              <div>
+                                <Text type="secondary">Relevancia:</Text>
+                                <Tag color="gold" style={{ marginLeft: 8 }}>{record.relevancia}/5</Tag>
+                              </div>
+                            )}
+                            {record.confianza && (
+                              <div>
+                                <Text type="secondary">Confianza:</Text>
+                                <Tag color="blue" style={{ marginLeft: 8 }}>{(record.confianza * 100).toFixed(0)}%</Tag>
+                              </div>
+                            )}
+                          </div>
+
+                          {record.fuentes_citadas && (
+                            <div>
+                              <Text strong>Fuentes Citadas:</Text>
+                              <Paragraph style={{ marginTop: 8, marginLeft: 16 }}>{record.fuentes_citadas}</Paragraph>
+                            </div>
+                          )}
+
+                          {record.datos_numericos && (
+                            <div>
+                              <Text strong>Datos Numéricos:</Text>
+                              <Paragraph style={{ marginTop: 8, marginLeft: 16 }}>{record.datos_numericos}</Paragraph>
+                            </div>
+                          )}
+                        </Space>
+                      </div>
+                    ),
+                    rowExpandable: () => true,
+                  }}
                 />
               ),
               style: { background: '#fff', marginBottom: 12, borderRadius: 16, border: '1px solid #f3f4f6' }

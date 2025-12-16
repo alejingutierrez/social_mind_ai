@@ -39,6 +39,31 @@ export interface Insight {
   etiquetas?: string | null
   marca?: string | null
   entidad?: string | null
+  idioma?: string | null
+  confianza?: number | null
+  relevancia?: number | null
+  accion_recomendada?: string | null
+  cita_clave?: string | null
+  // Nuevos campos para análisis enriquecido
+  resumen_ejecutivo?: string | null
+  tono?: string | null
+  temas_principales?: string | null
+  subtemas?: string | null
+  stakeholders?: string | null
+  impacto_social?: string | null
+  impacto_economico?: string | null
+  impacto_politico?: string | null
+  palabras_clave_contextuales?: string | null
+  trending_topics?: string | null
+  analisis_competitivo?: string | null
+  credibilidad_fuente?: number | null
+  sesgo_detectado?: string | null
+  localizacion_geografica?: string | null
+  fuentes_citadas?: string | null
+  datos_numericos?: string | null
+  urgencia?: string | null
+  audiencia_objetivo?: string | null
+  // Campos del artículo
   article_title?: string | null
   article_description?: string | null
   article_content?: string | null
