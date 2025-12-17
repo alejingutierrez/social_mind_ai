@@ -200,14 +200,19 @@ async function fetchNYT(term) {
 
   return docs.map((item) => {
     try {
-      // NYT multimedia structure: find first image with best quality
+      // NYT multimedia structure: find first usable image
       let imageUrl = null
       if (Array.isArray(item.multimedia) && item.multimedia.length > 0) {
-        const imageObj = item.multimedia.find(m => m && (m.subtype === 'xlarge' || m.subtype === 'superJumbo'))
+        // Try to find images in order of preference: xlarge > superJumbo > wide > any image type
+        const imageObj =
+          item.multimedia.find(m => m && m.type === 'image' && m.subtype === 'xlarge') ||
+          item.multimedia.find(m => m && m.type === 'image' && m.subtype === 'superJumbo') ||
+          item.multimedia.find(m => m && m.type === 'image' && m.subtype === 'wide') ||
+          item.multimedia.find(m => m && m.type === 'image' && m.url) ||
+          item.multimedia.find(m => m && m.url)
+
         if (imageObj && imageObj.url) {
           imageUrl = imageObj.url
-        } else if (item.multimedia[0] && item.multimedia[0].url) {
-          imageUrl = item.multimedia[0].url
         }
       }
 
