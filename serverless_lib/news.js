@@ -196,26 +196,39 @@ async function fetchNYT(term) {
   const resp = await fetchWithTimeout(url.toString())
   if (!resp.ok) throw new Error(`NYT ${resp.status}`)
   const data = await resp.json()
-  return (data.response?.docs || []).map((item) => {
-    // NYT multimedia structure: find first image with best quality
-    const multimedia = item.multimedia || []
-    const imageObj = multimedia.find(m => m?.subtype === 'xlarge' || m?.subtype === 'superJumbo') || multimedia[0]
-    // normalizeImageUrl will handle prepending https://static01.nyt.com/ for relative URLs
-    const imageUrl = imageObj?.url || null
+  const docs = data.response?.docs || []
 
-    return mapBase(
-      {
-        ...item,
-        title: item.headline?.main || item.headline?.print_headline,
-        url: item.web_url,
-        urlToImage: imageUrl,
-        publishedAt: item.pub_date,
-        description: item.abstract,
-        source: { name: item.source || 'The New York Times' },
-      },
-      'NYT',
-    )
-  })
+  return docs.map((item) => {
+    try {
+      // NYT multimedia structure: find first image with best quality
+      let imageUrl = null
+      if (Array.isArray(item.multimedia) && item.multimedia.length > 0) {
+        const imageObj = item.multimedia.find(m => m && (m.subtype === 'xlarge' || m.subtype === 'superJumbo'))
+        if (imageObj && imageObj.url) {
+          imageUrl = imageObj.url
+        } else if (item.multimedia[0] && item.multimedia[0].url) {
+          imageUrl = item.multimedia[0].url
+        }
+      }
+
+      return mapBase(
+        {
+          title: item.headline?.main || item.headline?.print_headline || '',
+          url: item.web_url || '',
+          urlToImage: imageUrl,
+          publishedAt: item.pub_date || null,
+          description: item.abstract || '',
+          author: item.byline?.original || null,
+          source: { name: item.source || 'The New York Times' },
+          content: item.lead_paragraph || null,
+        },
+        'NYT',
+      )
+    } catch (err) {
+      console.warn('Error mapping NYT article:', err.message, item.web_url)
+      return null
+    }
+  }).filter(Boolean)
 }
 
 async function fetchNews(term, language) {
