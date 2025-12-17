@@ -203,6 +203,11 @@ async function fetchNYT(term) {
       // NYT multimedia structure: find first usable image
       let imageUrl = null
       if (Array.isArray(item.multimedia) && item.multimedia.length > 0) {
+        // Log multimedia structure for debugging
+        console.log('NYT multimedia for article:', item.web_url)
+        console.log('Multimedia count:', item.multimedia.length)
+        console.log('First multimedia item:', JSON.stringify(item.multimedia[0]))
+
         // Try to find images in order of preference: xlarge > superJumbo > wide > any image type
         const imageObj =
           item.multimedia.find(m => m && m.type === 'image' && m.subtype === 'xlarge') ||
@@ -213,7 +218,12 @@ async function fetchNYT(term) {
 
         if (imageObj && imageObj.url) {
           imageUrl = imageObj.url
+          console.log('Found NYT image URL:', imageUrl)
+        } else {
+          console.log('No suitable image found in multimedia')
         }
+      } else {
+        console.log('No multimedia for NYT article:', item.web_url)
       }
 
       return mapBase(
