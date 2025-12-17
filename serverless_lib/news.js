@@ -200,30 +200,34 @@ async function fetchNYT(term) {
 
   return docs.map((item) => {
     try {
-      // NYT multimedia structure: find first usable image
+      // NYT multimedia structure: ensure we have an array to work with
       let imageUrl = null
-      if (Array.isArray(item.multimedia) && item.multimedia.length > 0) {
-        // Log multimedia structure for debugging
-        console.log('NYT multimedia for article:', item.web_url)
-        console.log('Multimedia count:', item.multimedia.length)
-        console.log('First multimedia item:', JSON.stringify(item.multimedia[0]))
 
-        // Try to find images in order of preference: xlarge > superJumbo > wide > any image type
+      // multimedia might be undefined, null, object, or array - normalize it
+      const multimedia = Array.isArray(item.multimedia)
+        ? item.multimedia
+        : (item.multimedia ? [item.multimedia] : [])
+
+      if (multimedia.length > 0) {
+        console.log('NYT article:', item.web_url?.substring(0, 50))
+        console.log('Multimedia type:', typeof item.multimedia, 'Array?', Array.isArray(item.multimedia))
+        console.log('Multimedia count:', multimedia.length)
+        console.log('First item:', JSON.stringify(multimedia[0]).substring(0, 200))
+
+        // Try to find images in order of preference
         const imageObj =
-          item.multimedia.find(m => m && m.type === 'image' && m.subtype === 'xlarge') ||
-          item.multimedia.find(m => m && m.type === 'image' && m.subtype === 'superJumbo') ||
-          item.multimedia.find(m => m && m.type === 'image' && m.subtype === 'wide') ||
-          item.multimedia.find(m => m && m.type === 'image' && m.url) ||
-          item.multimedia.find(m => m && m.url)
+          multimedia.find(m => m && m.type === 'image' && m.subtype === 'xlarge') ||
+          multimedia.find(m => m && m.type === 'image' && m.subtype === 'superJumbo') ||
+          multimedia.find(m => m && m.type === 'image' && m.subtype === 'wide') ||
+          multimedia.find(m => m && m.type === 'image' && m.url) ||
+          multimedia.find(m => m && m.url)
 
         if (imageObj && imageObj.url) {
           imageUrl = imageObj.url
-          console.log('Found NYT image URL:', imageUrl)
+          console.log('Found image URL:', imageUrl.substring(0, 100))
         } else {
-          console.log('No suitable image found in multimedia')
+          console.log('No image found')
         }
-      } else {
-        console.log('No multimedia for NYT article:', item.web_url)
       }
 
       return mapBase(
@@ -240,7 +244,7 @@ async function fetchNYT(term) {
         'NYT',
       )
     } catch (err) {
-      console.warn('Error mapping NYT article:', err.message, item.web_url)
+      console.warn('NYT article error:', err.message, err.stack)
       return null
     }
   }).filter(Boolean)
