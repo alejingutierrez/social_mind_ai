@@ -52,6 +52,16 @@ const normalizeImageUrl = (raw) => {
   if (!value) return null
   if (value.startsWith('//')) return `https:${value}`
   if (/^https?:\/\//i.test(value)) return value
+
+  // NYT uses "remote/" prefix for external syndicated images
+  // Example: "remote/static.milanofinanza.it/content_upload/img/..."
+  // Should become: "https://static.milanofinanza.it/content_upload/img/..."
+  if (value.startsWith('remote/')) {
+    const externalUrl = value.replace(/^remote\//, '')
+    return `https://${externalUrl}`
+  }
+
+  // Regular NYT images hosted on their CDN
   return `https://static01.nyt.com/${value.replace(/^\//, '')}`
 }
 
