@@ -219,24 +219,33 @@ async function fetchNYT(term) {
         : (item.multimedia ? [item.multimedia] : [])
 
       if (multimedia.length > 0) {
-        console.log('NYT article:', item.web_url?.substring(0, 50))
-        console.log('Multimedia type:', typeof item.multimedia, 'Array?', Array.isArray(item.multimedia))
-        console.log('Multimedia count:', multimedia.length)
-        console.log('First item:', JSON.stringify(multimedia[0]).substring(0, 200))
+        // Try multiple URL extraction strategies
+        for (const item of multimedia) {
+          if (!item) continue
 
-        // Try to find images in order of preference
-        const imageObj =
-          multimedia.find(m => m && m.type === 'image' && m.subtype === 'xlarge') ||
-          multimedia.find(m => m && m.type === 'image' && m.subtype === 'superJumbo') ||
-          multimedia.find(m => m && m.type === 'image' && m.subtype === 'wide') ||
-          multimedia.find(m => m && m.type === 'image' && m.url) ||
-          multimedia.find(m => m && m.url)
+          // Strategy 1: default.url (most common in NYT Article Search API)
+          if (item.default && item.default.url) {
+            imageUrl = item.default.url
+            break
+          }
 
-        if (imageObj && imageObj.url) {
-          imageUrl = imageObj.url
-          console.log('Found image URL:', imageUrl.substring(0, 100))
+          // Strategy 2: Direct url field
+          if (item.url) {
+            imageUrl = item.url
+            break
+          }
+
+          // Strategy 3: Legacy multimedia with type/subtype (rare)
+          if (item.type === 'image' && item.subtype && item.url) {
+            imageUrl = item.url
+            break
+          }
+        }
+
+        if (imageUrl) {
+          console.log('NYT image found:', imageUrl.substring(0, 100))
         } else {
-          console.log('No image found')
+          console.log('NYT no image. First item keys:', Object.keys(multimedia[0] || {}).join(', '))
         }
       }
 
